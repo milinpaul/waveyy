@@ -56,6 +56,11 @@ export type WaveLayerConfig = {
   translucency?: number;
   /** Higher = softer light-to-shadow falloff across a fold. */
   shadeSoftness?: number;
+  /** Hard contour line tracing the sheet's long edges. 0 strength = off. */
+  borderColor?: string;
+  borderWidth?: number;
+  borderInset?: number;
+  borderStrength?: number;
   /** How strongly this layer reacts to pointer movement (0 = static). */
   parallax?: number;
   timeScale?: number;
@@ -103,6 +108,10 @@ export default function WaveLayer({
   strandStrength = 1,
   translucency = 0,
   shadeSoftness = 1,
+  borderColor = "#2E7FB8",
+  borderWidth = 0.02,
+  borderInset = 0.12,
+  borderStrength = 0,
   parallax = 0,
   timeScale = 1,
   mouse,
@@ -153,6 +162,10 @@ export default function WaveLayer({
       uStrandStrength: { value: strandStrength },
       uTranslucency: { value: translucency },
       uShadeSoftness: { value: shadeSoftness },
+      uBorderColor: { value: new THREE.Color(borderColor) },
+      uBorderWidth: { value: borderWidth },
+      uBorderInset: { value: borderInset },
+      uBorderStrength: { value: borderStrength },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []

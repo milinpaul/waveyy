@@ -23,61 +23,39 @@ const PALETTE = {
 const SHEETS = [
   // Tall background peak, sitting high and swinging widest.
   {
-    z: -1.2,
-    y: 0.34,
+    z: -0.3,
+    y: 0.15,
     heightMul: 0.9,
     ampMul: 1.8,
     phase: 0.3,
     freqMul: 0.7,
     colorMix: 0.16,
-    opacity: 0.62,
-    translucency: 0.12,
-  },
-  {
-    z: -0.85,
-    y: 0.12,
-    heightMul: 0.85,
-    ampMul: 1.25,
-    phase: 1.9,
-    freqMul: 0.9,
-    colorMix: 0.24,
-    opacity: 0.58,
-    translucency: 0.1,
+    opacity: 0.88,
+    translucency: 0.06,
   },
   // Mid-ground body.
   {
-    z: -0.5,
-    y: -0.05,
+    z: -0.15,
+    y: 0,
     heightMul: 1,
     ampMul: 0.95,
     phase: 3.4,
     freqMul: 1.05,
     colorMix: 0.42,
-    opacity: 0.6,
-    translucency: 0.1,
+    opacity: 0.86,
+    translucency: 0.05,
   },
   // Foreground drape, where the warm cream collects.
   {
-    z: -0.2,
-    y: -0.24,
+    z: 0,
+    y: -0.13,
     heightMul: 0.95,
     ampMul: 0.7,
     phase: 5.1,
     freqMul: 1.2,
     colorMix: 0.66,
-    opacity: 0.58,
-    translucency: 0.08,
-  },
-  {
-    z: 0.1,
-    y: -0.4,
-    heightMul: 0.8,
-    ampMul: 0.5,
-    phase: 6.4,
-    freqMul: 1.4,
-    colorMix: 0.5,
-    opacity: 0.5,
-    translucency: 0.08,
+    opacity: 0.84,
+    translucency: 0.04,
   },
 ];
 
@@ -142,11 +120,15 @@ export default function WaveScene() {
             colorMix={sheet.colorMix}
             opacity={sheet.opacity}
             edgeFadeX={0.14}
-            edgeFadeY={0.4}
+            edgeFadeY={0.16}
             grainStrength={0.012}
             strandStrength={0}
             translucency={sheet.translucency}
-            shadeSoftness={1.6}
+            shadeSoftness={1.1}
+            borderColor="#2E7FB8"
+            borderWidth={0.018}
+            borderInset={0.1}
+            borderStrength={0.85}
             parallax={0}
             timeScale={1}
           />
