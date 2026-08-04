@@ -5,10 +5,10 @@ export default function Home() {
     <div className="flex min-h-screen flex-col items-center bg-white pt-20 sm:pt-28">
       <main className="flex flex-col items-center gap-6 px-6 text-center">
         <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
-          Silk Wave
+          Waveyy
         </h1>
         <p className="max-w-md text-lg leading-8 text-zinc-500">
-          A Three.js hero background, woven from layered silk.
+          A hero background, woven from layered silk.
         </p>
       </main>
 
