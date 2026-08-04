@@ -5,11 +5,12 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import WaveLayer from "./WaveLayer";
 
-// Champagne is the ribbon's face; blue is its reverse, showing only where
-// the band twists over. Both stay pale — the reference is mostly white.
+// Champagne is the ribbon's face; blue is its reverse, showing where the band
+// twists over. The blue is a vivid cornflower — keeping `light` an actual blue
+// rather than near-white is what stops the lit side washing out to grey.
 const PALETTE = {
-  deep: "#7BA5DD",
-  light: "#CFE0F6",
+  deep: "#1F6FE0",
+  light: "#7FB2F2",
   cream: "#FFFDF7",
   gold: "#EFDFB6",
   fresnel: "#FFFFFF",
@@ -114,7 +115,7 @@ export default function WaveScene() {
             fresnelColor={PALETTE.fresnel}
             fresnelPower={2.4}
             fresnelStrength={0.08}
-            colorMix={0.88}
+            colorMix={0.62}
             opacity={ribbon.opacity}
             edgeFadeX={0.12}
             edgeFadeY={0.34}
