@@ -87,8 +87,17 @@ export const vertexShader = /* glsl */ `
 
   vec3 wavePoint(vec2 xy, float t) {
     float r = ridge(xy.x, t);
-    float n = fbm(vec2(xy.x * uNoiseFreq + t * uFoldSpeed, xy.y * uNoiseFreq - t * uFoldSpeed * 0.6));
-    return vec3(xy.x, xy.y * twist(xy.x, t) + r, n * uNoiseAmp);
+
+    // Two decorrelated 2D noise fields. Driving the vertical offset (not just
+    // depth) is what turns flat horizontal bands into actual draped folds:
+    // the surface now curves across y as well as x, so normals — and with
+    // them the light/shadow that reads as cloth — vary in both directions.
+    vec2 q = vec2(xy.x * uNoiseFreq + t * uFoldSpeed, xy.y * uNoiseFreq * 2.2 - t * uFoldSpeed * 0.6);
+    float nY = fbm(q);
+    float nZ = fbm(q + vec2(37.2, 11.7));
+
+    float y = xy.y * twist(xy.x, t) + r + nY * uNoiseAmp;
+    return vec3(xy.x, y, nZ * uNoiseAmp * 0.7);
   }
 
   void main() {
@@ -130,6 +139,12 @@ export const fragmentShader = /* glsl */ `
   uniform float uGrainStrength;
   uniform float uStrandCount;
   uniform float uStrandSharpness;
+  // 1 = fully resolved into strands, 0 = solid sheet.
+  uniform float uStrandStrength;
+  // Light bleeding through the sheet, for the backlit fabric look.
+  uniform float uTranslucency;
+  // Higher = softer, more gradual light-to-shadow falloff across a fold.
+  uniform float uShadeSoftness;
 
   varying vec2 vUv;
   varying float vHeight;
@@ -143,19 +158,29 @@ export const fragmentShader = /* glsl */ `
   }
 
   void main() {
+    // Sheets are DoubleSide, so flip the normal on back faces or the
+    // lighting inverts wherever a fold turns away from the camera.
     vec3 normal = normalize(vNormalW);
+    if (!gl_FrontFacing) normal = -normal;
     vec3 viewDir = normalize(vViewPosition);
 
-    float shade = smoothstep(-1.0, 1.0, vNoise);
+    vec3 lightDir = normalize(vec3(0.35, 0.55, 1.0));
+
+    // Half-lambert: no hard terminator, so folds read as soft cloth rather
+    // than a lit solid. uShadeSoftness biases how quickly it rolls off.
+    float halfLambert = dot(normal, lightDir) * 0.5 + 0.5;
+    float shade = pow(clamp(halfLambert, 0.0, 1.0), uShadeSoftness);
+    shade = mix(shade, smoothstep(-1.0, 1.0, vNoise), 0.25);
+
     vec3 blueTone = mix(uColorDeep, uColorLight, shade);
     vec3 warmTone = mix(uColorGold, uColorCream, shade);
 
     float patchT = smoothstep(-0.35, 0.35, vPatch + (uColorMix - 0.5) * 1.4);
     vec3 base = mix(blueTone, warmTone, patchT);
 
-    vec3 lightDir = normalize(vec3(0.35, 0.55, 1.0));
-    float diff = max(dot(normal, lightDir), 0.0);
-    base *= (0.88 + 0.16 * diff);
+    // Light transmitted through the sheet from behind.
+    float back = pow(max(dot(normal, -lightDir), 0.0), 1.5);
+    base += uFresnelColor * back * uTranslucency;
 
     float fresnel = pow(1.0 - clamp(dot(normal, viewDir), 0.0, 1.0), uFresnelPower);
     vec3 color = base + uFresnelColor * fresnel * uFresnelStrength;
@@ -168,7 +193,7 @@ export const fragmentShader = /* glsl */ `
     // noise offset lets the strands bunch and splay organically as it twists.
     float strandCoord = vUv.y * uStrandCount + vNoise * 0.8;
     float wave = sin(strandCoord * 6.28318530718) * 0.5 + 0.5;
-    float strand = pow(wave, uStrandSharpness);
+    float strand = mix(1.0, pow(wave, uStrandSharpness), uStrandStrength);
 
     float edgeX = smoothstep(0.0, uEdgeFadeX, vUv.x) * (1.0 - smoothstep(1.0 - uEdgeFadeX, 1.0, vUv.x));
     float edgeY = smoothstep(0.0, uEdgeFadeY, vUv.y) * (1.0 - smoothstep(1.0 - uEdgeFadeY, 1.0, vUv.y));

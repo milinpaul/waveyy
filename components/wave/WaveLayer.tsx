@@ -50,6 +50,12 @@ export type WaveLayerConfig = {
   strandCount?: number;
   /** Higher = thinner, more separated strands. */
   strandSharpness?: number;
+  /** 1 = fully resolved into strands, 0 = solid sheet. */
+  strandStrength?: number;
+  /** Light bleeding through the sheet, for a backlit fabric look. */
+  translucency?: number;
+  /** Higher = softer light-to-shadow falloff across a fold. */
+  shadeSoftness?: number;
   /** How strongly this layer reacts to pointer movement (0 = static). */
   parallax?: number;
   timeScale?: number;
@@ -94,6 +100,9 @@ export default function WaveLayer({
   grainStrength = 0.035,
   strandCount = 40,
   strandSharpness = 3,
+  strandStrength = 1,
+  translucency = 0,
+  shadeSoftness = 1,
   parallax = 0,
   timeScale = 1,
   mouse,
@@ -141,6 +150,9 @@ export default function WaveLayer({
       uGrainStrength: { value: grainStrength },
       uStrandCount: { value: strandCount },
       uStrandSharpness: { value: strandSharpness },
+      uStrandStrength: { value: strandStrength },
+      uTranslucency: { value: translucency },
+      uShadeSoftness: { value: shadeSoftness },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
