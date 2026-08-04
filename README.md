@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Waveyy
 
-## Getting Started
+An animated silk-ribbon hero background built with Three.js, [React Three
+Fiber](https://docs.pmnd.rs/react-three-fiber), and a custom GLSL shader —
+no textures, no post-processing.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build   # production build
+npm run lint    # eslint + typecheck
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it works
 
-## Learn More
+- **`components/wave/shaders.ts`** — the vertex shader displaces a plane
+  with layered sine ridges plus simplex/fbm noise, and twists it: a signed
+  width envelope that crosses zero pinches the ribbon to a point and flips
+  it over. The fragment shader colours each face differently (front warm,
+  back blue), so colour is placed by geometry — it shows up exactly where
+  the ribbon folds, not scattered by noise.
+- **`components/wave/WaveLayer.tsx`** — one ribbon mesh: geometry, uniforms,
+  and the per-frame update loop.
+- **`components/wave/WaveScene.tsx`** — composes a few `WaveLayer`s at
+  different depth/phase/scale into one piece of woven silk, and drives a
+  subtle mouse-parallax tilt.
+- **`components/wave/WaveStrip.tsx`** — the `<Canvas>` wrapper. Drop it
+  into any sized, `relative`-positioned container and it fills it.
 
-To learn more about Next.js, take a look at the following resources:
+## Using it as a background
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```tsx
+<section className="relative ...">
+  <div className="absolute inset-0 z-0">
+    <WaveStrip />
+  </div>
+  <div className="pointer-events-none relative z-10 ...">
+    {/* content; re-enable pointer-events on anything clickable */}
+  </div>
+</section>
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Two things that matter here:
 
-## Deploy on Vercel
+1. Give both layers an explicit `position` **and** `z-index`. A `relative`
+   parent with its own background paints over a negative-`z` child, which
+   hides the canvas outright.
+2. The content layer sits above the canvas and spans the whole section, so
+   without `pointer-events-none` it swallows every mouse move before the
+   canvas sees one — killing the parallax with no visible symptom.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js · React · Three.js · @react-three/fiber · Tailwind CSS · TypeScript

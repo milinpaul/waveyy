@@ -150,7 +150,9 @@ export default function Home() {
             </p>
             <a
               className="mt-8 inline-block rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
-              href="#start"
+              href="https://github.com/milinpaul/waveyy"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Read the docs
             </a>
