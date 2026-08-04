@@ -68,13 +68,17 @@ export default function WaveScene() {
   const baseHeight = viewport.width * 0.1;
   const baseAmp = viewport.width * 0.045;
 
+  // Sit below centre. When the canvas is a tall hero background this keeps the
+  // ribbon clear of the headline; in a short strip it is a negligible nudge.
+  const restY = -viewport.height * 0.16;
+
   useFrame((state) => {
     mouse.current.x += (state.pointer.x - mouse.current.x) * 0.05;
     mouse.current.y += (state.pointer.y - mouse.current.y) * 0.05;
 
     if (group.current) {
       group.current.rotation.z = mouse.current.x * 0.012;
-      group.current.position.y = mouse.current.y * viewport.width * 0.012;
+      group.current.position.y = restY + mouse.current.y * viewport.width * 0.012;
     }
   });
 

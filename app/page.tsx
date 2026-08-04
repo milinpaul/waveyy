@@ -48,16 +48,27 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Hero — fills the viewport, with the wave anchored along its base. */}
-        <section className="relative flex min-h-[calc(100svh-4.5rem)] flex-col">
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-10 text-center">
+        {/* Hero — the wave fills the section as its background, with the
+            content stacked above it. Both siblings get an explicit position and
+            z-index: a bare `relative` parent with a background will paint over
+            a negatively-stacked child, which hides the canvas entirely. */}
+        <section className="relative flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <WaveStrip />
+          </div>
+
+          {/* This layer spans the whole hero, so it would otherwise swallow
+              every pointer move and the canvas below would never see one,
+              killing the parallax. Let moves through, and re-enable hits on
+              the controls themselves. */}
+          <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-10 text-center">
             <h1 className="text-5xl font-semibold tracking-tight sm:text-7xl">
               Waveyy
             </h1>
             <p className="max-w-md text-lg leading-8 text-zinc-500">
               A hero background, woven from layered silk.
             </p>
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+            <div className="pointer-events-auto mt-2 flex flex-col gap-3 sm:flex-row">
               <a
                 className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
                 href="#start"
@@ -71,10 +82,6 @@ export default function Home() {
                 See how it works
               </a>
             </div>
-          </div>
-
-          <div className="relative h-56 w-full shrink-0 sm:h-72 lg:h-80">
-            <WaveStrip />
           </div>
         </section>
 
