@@ -146,14 +146,6 @@ export const fragmentShader = /* glsl */ `
   // Higher = softer, more gradual light-to-shadow falloff across a fold.
   uniform float uShadeSoftness;
 
-  // Hard contour line tracing each sheet's long edges.
-  uniform vec3 uBorderColor;
-  uniform float uBorderWidth;
-  // How far in from the edge the line sits. It has to sit inside the edge
-  // fade, otherwise the fade zeroes the alpha and the line never shows.
-  uniform float uBorderInset;
-  uniform float uBorderStrength;
-
   varying vec2 vUv;
   varying float vHeight;
   varying float vNoise;
@@ -207,14 +199,6 @@ export const fragmentShader = /* glsl */ `
     float edgeY = smoothstep(0.0, uEdgeFadeY, vUv.y) * (1.0 - smoothstep(1.0 - uEdgeFadeY, 1.0, vUv.y));
 
     float alpha = uOpacity * strand * edgeX * edgeY;
-
-    // Crisp contour band a fixed inset in from each long edge. It carries its
-    // own alpha so it stays sharp where the soft body has already faded out.
-    float dEdge = min(vUv.y, 1.0 - vUv.y);
-    float line = 1.0 - smoothstep(0.0, uBorderWidth, abs(dEdge - uBorderInset));
-    line *= uBorderStrength * edgeX;
-    color = mix(color, uBorderColor, line);
-    alpha = max(alpha, line * uOpacity);
     gl_FragColor = vec4(color, alpha);
   }
 `;

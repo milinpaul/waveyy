@@ -125,10 +125,6 @@ export default function WaveScene() {
             strandStrength={0}
             translucency={sheet.translucency}
             shadeSoftness={1.1}
-            borderColor="#2E7FB8"
-            borderWidth={0.018}
-            borderInset={0.1}
-            borderStrength={0.85}
             parallax={0}
             timeScale={1}
           />
