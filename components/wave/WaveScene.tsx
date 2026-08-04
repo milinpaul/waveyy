@@ -125,6 +125,7 @@ export default function WaveScene() {
             strandStrength={0}
             translucency={sheet.translucency}
             shadeSoftness={1.1}
+            viewFade={0.22}
             parallax={0}
             timeScale={1}
           />

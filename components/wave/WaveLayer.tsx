@@ -56,6 +56,11 @@ export type WaveLayerConfig = {
   translucency?: number;
   /** Higher = softer light-to-shadow falloff across a fold. */
   shadeSoftness?: number;
+  /**
+   * Fade width at the canvas top/bottom, in NDC units (0-1). Keeps sheets that
+   * overflow the canvas from being hard-cut by its edge. 0 disables it.
+   */
+  viewFade?: number;
   /** How strongly this layer reacts to pointer movement (0 = static). */
   parallax?: number;
   timeScale?: number;
@@ -103,6 +108,7 @@ export default function WaveLayer({
   strandStrength = 1,
   translucency = 0,
   shadeSoftness = 1,
+  viewFade = 0,
   parallax = 0,
   timeScale = 1,
   mouse,
@@ -153,6 +159,7 @@ export default function WaveLayer({
       uStrandStrength: { value: strandStrength },
       uTranslucency: { value: translucency },
       uShadeSoftness: { value: shadeSoftness },
+      uViewFade: { value: viewFade },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []

@@ -70,6 +70,7 @@ export const vertexShader = /* glsl */ `
   varying float vPatch;
   varying vec3 vNormalW;
   varying vec3 vViewPosition;
+  varying float vNdcY;
 
   ${noiseChunk}
 
@@ -119,7 +120,12 @@ export const vertexShader = /* glsl */ `
 
     vec4 mvPosition = modelViewMatrix * vec4(p0, 1.0);
     vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
+
+    vec4 clip = projectionMatrix * mvPosition;
+    // Normalised device Y, so the fragment stage can fade the sheet out as it
+    // nears the canvas edge instead of being hard-cut by it.
+    vNdcY = clip.y / clip.w;
+    gl_Position = clip;
   }
 `;
 
@@ -145,6 +151,10 @@ export const fragmentShader = /* glsl */ `
   uniform float uTranslucency;
   // Higher = softer, more gradual light-to-shadow falloff across a fold.
   uniform float uShadeSoftness;
+  // Fade width at the canvas top/bottom, in NDC units. Guarantees the sheets
+  // dissolve rather than being sliced by the canvas edge, whatever the
+  // viewport size. 0 disables it.
+  uniform float uViewFade;
 
   varying vec2 vUv;
   varying float vHeight;
@@ -152,6 +162,7 @@ export const fragmentShader = /* glsl */ `
   varying float vPatch;
   varying vec3 vNormalW;
   varying vec3 vViewPosition;
+  varying float vNdcY;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -199,6 +210,10 @@ export const fragmentShader = /* glsl */ `
     float edgeY = smoothstep(0.0, uEdgeFadeY, vUv.y) * (1.0 - smoothstep(1.0 - uEdgeFadeY, 1.0, vUv.y));
 
     float alpha = uOpacity * strand * edgeX * edgeY;
+
+    if (uViewFade > 0.0) {
+      alpha *= smoothstep(0.0, uViewFade, 1.0 - abs(vNdcY));
+    }
     gl_FragColor = vec4(color, alpha);
   }
 `;
