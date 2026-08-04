@@ -155,6 +155,10 @@ export const fragmentShader = /* glsl */ `
   // dissolve rather than being sliced by the canvas edge, whatever the
   // viewport size. 0 disables it.
   uniform float uViewFade;
+  // Blend toward front/back face colouring. The ribbon's reverse side reads
+  // as a different colour, so wherever the twist flips it over you get a
+  // patch of the back colour — that is where the blue comes from.
+  uniform float uTwoSided;
 
   varying vec2 vUv;
   varying float vHeight;
@@ -188,6 +192,12 @@ export const fragmentShader = /* glsl */ `
 
     float patchT = smoothstep(-0.35, 0.35, vPatch + (uColorMix - 0.5) * 1.4);
     vec3 base = mix(blueTone, warmTone, patchT);
+
+    // Front of the ribbon is warm, its reverse is blue. Combined with the
+    // twist this puts blue exactly where the band folds over on itself,
+    // rather than scattering it by noise.
+    vec3 sideTone = gl_FrontFacing ? warmTone : blueTone;
+    base = mix(base, sideTone, uTwoSided);
 
     // Light transmitted through the sheet from behind.
     float back = pow(max(dot(normal, -lightDir), 0.0), 1.5);

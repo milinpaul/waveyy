@@ -5,57 +5,53 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import WaveLayer from "./WaveLayer";
 
-// Sampled from the reference: sky blue in the fold cores, pale blue on the
-// lit faces, near-white highlights, and a soft cream that pools low-centre.
+// Champagne is the ribbon's face; blue is its reverse, showing only where
+// the band twists over. Both stay pale — the reference is mostly white.
 const PALETTE = {
-  deep: "#3E9BD4",
-  light: "#BEDFF3",
-  cream: "#FBFDFF",
-  gold: "#F0DFB6",
+  deep: "#7BA5DD",
+  light: "#CFE0F6",
+  cream: "#FFFDF7",
+  gold: "#EFDFB6",
   fresnel: "#FFFFFF",
 };
 
 /**
- * Overlapping translucent sheets. Each is the same wave at a different
- * scale/phase/depth, so they read as one draped piece of fabric with volume
- * rather than as separate ribbons.
+ * A few thin ribbons sharing one twist, offset in phase and depth. Kept
+ * narrow with generous white space, as in the reference.
  */
-const SHEETS = [
-  // Tall background peak, sitting high and swinging widest.
+const RIBBONS = [
   {
-    z: -0.3,
-    y: 0.15,
-    heightMul: 0.9,
-    ampMul: 1.8,
-    phase: 0.3,
-    freqMul: 0.7,
-    colorMix: 0.16,
-    opacity: 0.88,
-    translucency: 0.06,
-  },
-  // Mid-ground body.
-  {
-    z: -0.15,
-    y: 0,
+    z: -0.2,
+    y: 0.1,
     heightMul: 1,
-    ampMul: 0.95,
-    phase: 3.4,
-    freqMul: 1.05,
-    colorMix: 0.42,
-    opacity: 0.86,
-    translucency: 0.05,
+    ampMul: 1,
+    phase: 0.4,
+    freqMul: 1,
+    twistMul: 1,
+    twistPhase: 0.9,
+    opacity: 0.72,
   },
-  // Foreground drape, where the warm cream collects.
+  {
+    z: -0.1,
+    y: -0.04,
+    heightMul: 0.86,
+    ampMul: 0.82,
+    phase: 2.7,
+    freqMul: 1.15,
+    twistMul: 0.85,
+    twistPhase: 2.4,
+    opacity: 0.6,
+  },
   {
     z: 0,
-    y: -0.13,
-    heightMul: 0.95,
-    ampMul: 0.7,
-    phase: 5.1,
-    freqMul: 1.2,
-    colorMix: 0.66,
-    opacity: 0.84,
-    translucency: 0.04,
+    y: -0.18,
+    heightMul: 0.72,
+    ampMul: 0.66,
+    phase: 4.9,
+    freqMul: 1.32,
+    twistMul: 1.2,
+    twistPhase: 4.1,
+    opacity: 0.5,
   },
 ];
 
@@ -65,10 +61,11 @@ export default function WaveScene() {
   const { viewport } = useThree();
 
   const width = viewport.width * 1.5;
-  const baseFreq = (Math.PI * 2 * 1.5) / width;
+  const baseFreq = (Math.PI * 2 * 1.35) / width;
+  const twistFreq = (Math.PI * 2 * 1.15) / width;
 
-  const baseHeight = viewport.width * 0.105;
-  const baseAmp = viewport.width * 0.05;
+  const baseHeight = viewport.width * 0.1;
+  const baseAmp = viewport.width * 0.045;
 
   useFrame((state) => {
     mouse.current.x += (state.pointer.x - mouse.current.x) * 0.05;
@@ -82,50 +79,51 @@ export default function WaveScene() {
 
   return (
     <group ref={group}>
-      {SHEETS.map((sheet, i) => {
-        const sheetHeight = baseHeight * sheet.heightMul;
-        const amp = baseAmp * sheet.ampMul;
+      {RIBBONS.map((ribbon, i) => {
+        const ribbonHeight = baseHeight * ribbon.heightMul;
+        const amp = baseAmp * ribbon.ampMul;
         return (
           <WaveLayer
             key={i}
             mouse={mouse}
-            position={[0, sheet.y * baseHeight * 1.6 - baseHeight * 0.35, sheet.z]}
+            position={[0, ribbon.y * baseHeight, ribbon.z]}
             width={width}
-            height={sheetHeight}
-            segmentsX={200}
-            segmentsY={56}
+            height={ribbonHeight}
+            segmentsX={240}
+            segmentsY={48}
             amp1={amp}
             amp2={amp * 0.44}
             amp3={amp * 0.2}
-            freq1={baseFreq * sheet.freqMul}
-            freq2={baseFreq * sheet.freqMul * 2.15}
-            freq3={baseFreq * sheet.freqMul * 3.9}
-            speed1={0.16}
-            speed2={0.21}
-            speed3={0.26}
-            phase={sheet.phase}
-            noiseFreq={0.15}
-            noiseAmp={sheetHeight * 0.7}
-            foldSpeed={0.04}
-            twistFreq={0}
-            twistSpeed={0}
-            twistPhase={Math.PI / 2}
+            freq1={baseFreq * ribbon.freqMul}
+            freq2={baseFreq * ribbon.freqMul * 2.15}
+            freq3={baseFreq * ribbon.freqMul * 3.9}
+            speed1={0.17}
+            speed2={0.22}
+            speed3={0.27}
+            phase={ribbon.phase}
+            noiseFreq={0.12}
+            noiseAmp={ribbonHeight * 0.3}
+            foldSpeed={0.035}
+            twistFreq={twistFreq * ribbon.twistMul}
+            twistSpeed={0.13}
+            twistPhase={ribbon.twistPhase}
             colorDeep={PALETTE.deep}
             colorLight={PALETTE.light}
             colorCream={PALETTE.cream}
             colorGold={PALETTE.gold}
             fresnelColor={PALETTE.fresnel}
             fresnelPower={2.4}
-            fresnelStrength={0.1}
-            colorMix={sheet.colorMix}
-            opacity={sheet.opacity}
-            edgeFadeX={0.14}
-            edgeFadeY={0.16}
-            grainStrength={0.012}
+            fresnelStrength={0.08}
+            colorMix={0.88}
+            opacity={ribbon.opacity}
+            edgeFadeX={0.12}
+            edgeFadeY={0.34}
+            grainStrength={0.05}
             strandStrength={0}
-            translucency={sheet.translucency}
-            shadeSoftness={1.1}
+            translucency={0.05}
+            shadeSoftness={1.3}
             viewFade={0.22}
+            twoSided={0.85}
             parallax={0}
             timeScale={1}
           />

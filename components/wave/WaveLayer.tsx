@@ -61,6 +61,8 @@ export type WaveLayerConfig = {
    * overflow the canvas from being hard-cut by its edge. 0 disables it.
    */
   viewFade?: number;
+  /** Blend toward front-warm / back-blue face colouring (0-1). */
+  twoSided?: number;
   /** How strongly this layer reacts to pointer movement (0 = static). */
   parallax?: number;
   timeScale?: number;
@@ -109,6 +111,7 @@ export default function WaveLayer({
   translucency = 0,
   shadeSoftness = 1,
   viewFade = 0,
+  twoSided = 0,
   parallax = 0,
   timeScale = 1,
   mouse,
@@ -160,6 +163,7 @@ export default function WaveLayer({
       uTranslucency: { value: translucency },
       uShadeSoftness: { value: shadeSoftness },
       uViewFade: { value: viewFade },
+      uTwoSided: { value: twoSided },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
