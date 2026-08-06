@@ -1,4 +1,4 @@
-import WaveStrip from "@/components/wave/WaveStrip";
+import WaveHero from "@/components/wave/WaveHero";
 
 const LOGOS = ["Northwind", "Contoso", "Initech", "Globex", "Umbrella", "Soylent"];
 
@@ -53,36 +53,34 @@ export default function Home() {
             z-index: a bare `relative` parent with a background will paint over
             a negatively-stacked child, which hides the canvas entirely. */}
         <section className="relative flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            <WaveStrip />
-          </div>
-
-          {/* This layer spans the whole hero, so it would otherwise swallow
-              every pointer move and the canvas below would never see one,
-              killing the parallax. Let moves through, and re-enable hits on
-              the controls themselves. */}
-          <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-10 text-center">
-            <h1 className="text-5xl font-semibold tracking-tight sm:text-7xl">
-              Waveyy
-            </h1>
-            <p className="max-w-md text-lg leading-8 text-zinc-500">
-              A hero background, woven from layered silk.
-            </p>
-            <div className="pointer-events-auto mt-2 flex flex-col gap-3 sm:flex-row">
-              <a
-                className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
-                href="#start"
-              >
-                Get started
-              </a>
-              <a
-                className="rounded-full border border-zinc-200 px-6 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-                href="#features"
-              >
-                See how it works
-              </a>
+          <WaveHero>
+            {/* This layer spans the whole hero, so it would otherwise swallow
+                every pointer move and the canvas below would never see one,
+                killing the parallax. Let moves through, and re-enable hits on
+                the controls themselves. */}
+            <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-10 text-center">
+              <h1 className="text-5xl font-semibold tracking-tight sm:text-7xl">
+                Waveyy
+              </h1>
+              <p className="max-w-md text-lg leading-8 text-zinc-500">
+                A hero background, woven from layered silk.
+              </p>
+              <div className="pointer-events-auto mt-2 flex flex-col gap-3 sm:flex-row">
+                <a
+                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+                  href="#start"
+                >
+                  Get started
+                </a>
+                <a
+                  className="rounded-full border border-zinc-200 px-6 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                  href="#features"
+                >
+                  See how it works
+                </a>
+              </div>
             </div>
-          </div>
+          </WaveHero>
         </section>
 
         <section className="border-y border-zinc-100 bg-zinc-50/60">

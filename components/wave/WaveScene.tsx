@@ -4,17 +4,7 @@ import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import WaveLayer from "./WaveLayer";
-
-// Champagne is the ribbon's face; blue is its reverse, showing where the band
-// twists over. The blue is a vivid cornflower — keeping `light` an actual blue
-// rather than near-white is what stops the lit side washing out to grey.
-const PALETTE = {
-  deep: "#1F6FE0",
-  light: "#7FB2F2",
-  cream: "#FFFDF7",
-  gold: "#EFDFB6",
-  fresnel: "#FFFFFF",
-};
+import { DEFAULT_PALETTE, type WavePalette } from "./palettes";
 
 /**
  * A few thin ribbons sharing one twist, offset in phase and depth. Kept
@@ -56,7 +46,11 @@ const RIBBONS = [
   },
 ];
 
-export default function WaveScene() {
+export default function WaveScene({
+  palette = DEFAULT_PALETTE,
+}: {
+  palette?: WavePalette;
+}) {
   const mouse = useRef(new THREE.Vector2(0, 0));
   const group = useRef<THREE.Group>(null);
   const { viewport } = useThree();
@@ -112,11 +106,11 @@ export default function WaveScene() {
             twistFreq={twistFreq * ribbon.twistMul}
             twistSpeed={0.13}
             twistPhase={ribbon.twistPhase}
-            colorDeep={PALETTE.deep}
-            colorLight={PALETTE.light}
-            colorCream={PALETTE.cream}
-            colorGold={PALETTE.gold}
-            fresnelColor={PALETTE.fresnel}
+            colorDeep={palette.deep}
+            colorLight={palette.light}
+            colorCream={palette.cream}
+            colorGold={palette.gold}
+            fresnelColor={palette.fresnel}
             fresnelPower={2.4}
             fresnelStrength={0.08}
             colorMix={0.62}
