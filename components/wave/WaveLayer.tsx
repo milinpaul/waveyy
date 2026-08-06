@@ -1,9 +1,13 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { fragmentShader, vertexShader } from "./shaders";
+
+// How fast the colour uniforms chase a new palette, in e-folds per second.
+// ~6 lands on a cross-fade of a little under half a second.
+const COLOR_CHASE_RATE = 6;
 
 export type WaveLayerConfig = {
   /** Position in the group; z controls depth ordering / parallax strength. */
@@ -169,13 +173,49 @@ export default function WaveLayer({
     []
   );
 
-  useFrame((state) => {
+  // Where the palette wants the colours to end up. Kept as THREE.Color so the
+  // per-frame lerp allocates nothing, and so the hex -> working-colour-space
+  // conversion happens once per change rather than once per frame.
+  const target = useMemo(
+    () => ({
+      deep: new THREE.Color(colorDeep),
+      light: new THREE.Color(colorLight),
+      cream: new THREE.Color(colorCream),
+      gold: new THREE.Color(colorGold),
+      fresnel: new THREE.Color(fresnelColor),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  useEffect(() => {
+    target.deep.set(colorDeep);
+    target.light.set(colorLight);
+    target.cream.set(colorCream);
+    target.gold.set(colorGold);
+    target.fresnel.set(fresnelColor);
+  }, [target, colorDeep, colorLight, colorCream, colorGold, fresnelColor]);
+
+  useFrame((state, delta) => {
     const material = materialRef.current;
     const mesh = meshRef.current;
     if (!material || !mesh) return;
 
     material.uniforms.uTime.value = state.clock.elapsedTime * timeScale;
     material.uniforms.uMouse.value.copy(mouse.current);
+
+    // Ease the colours toward the target rather than assigning them, so a
+    // palette switch cross-fades instead of popping. Mutating the uniform in
+    // place means the material is never rebuilt and the shader never
+    // recompiles — the ribbon keeps animating straight through the change.
+    // Exponential form so the fade takes the same wall-clock time whatever the
+    // frame rate.
+    const t = 1 - Math.exp(-COLOR_CHASE_RATE * delta);
+    material.uniforms.uColorDeep.value.lerp(target.deep, t);
+    material.uniforms.uColorLight.value.lerp(target.light, t);
+    material.uniforms.uColorCream.value.lerp(target.cream, t);
+    material.uniforms.uColorGold.value.lerp(target.gold, t);
+    material.uniforms.uFresnelColor.value.lerp(target.fresnel, t);
 
     if (parallax > 0) {
       mesh.position.x = position[0] + mouse.current.x * parallax;

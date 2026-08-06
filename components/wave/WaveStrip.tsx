@@ -2,8 +2,9 @@
 
 import { Canvas } from "@react-three/fiber";
 import WaveScene from "./WaveScene";
+import { type WavePalette } from "./palettes";
 
-export default function WaveStrip() {
+export default function WaveStrip({ palette }: { palette?: WavePalette }) {
   return (
     <Canvas
       orthographic
@@ -17,7 +18,7 @@ export default function WaveStrip() {
       style={{ width: "100%", height: "100%" }}
       onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
     >
-      <WaveScene />
+      <WaveScene palette={palette} />
     </Canvas>
   );
 }
